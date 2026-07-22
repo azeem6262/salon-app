@@ -93,3 +93,20 @@ export async function addBooking(formData: FormData) {
   revalidatePath('/appointments')
   redirect('/')
 }
+
+export async function updateBookingStatus(id: string, status: string) {
+  const { supabase, orgId } = await getOrg()
+  
+  const { error } = await supabase
+    .from('bookings')
+    .update({ status })
+    .match({ id, org_id: orgId })
+
+  if (error) {
+    console.error("Booking Update Error:", error)
+    throw new Error('Failed to update booking status: ' + error.message)
+  }
+
+  revalidatePath('/')
+  revalidatePath('/appointments')
+}
