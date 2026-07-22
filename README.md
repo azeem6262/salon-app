@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Salon Booking PWA
 
-## Getting Started
+A mobile-first Progressive Web App (PWA) designed for small salon and clinic owners to manage daily bookings, customers, and stylists. 
 
-First, run the development server:
+Built with a focus on simplicity, offline support, and speed, without unnecessary platform bloat.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Mobile-First PWA:** Installable via browser "Add to Home Screen", offering a native-app feel and offline capabilities for the current day's data.
+- **Onboarding & Auth:** Compulsory Google Sign-in to keep things simple. A seamless first-time user flow for choosing "Clinic" or "Salon" and setting the organization name.
+- **Custom Services & Stylists:** Salons and clinics can define their own fully custom services, default prices, and stylists. Prices can be overridden per booking.
+- **Day & Week Appointment Views:** Easy navigation between today's tasks and a broader week overview.
+- **Analytics Dashboard:** Keep track of total sales, total clients, total bookings, and no-shows with Day/Week/Month and custom date range filters.
+- **Customer Management:** Maintain a list of customers, their booking history, and visit stats.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework:** Next.js 14+ (App Router)
+- **Styling:** Tailwind CSS (Clean, minimal aesthetic)
+- **Backend & Auth:** Supabase (PostgreSQL, Row Level Security, Google OAuth)
+- **PWA Layer:** `next-pwa` + Workbox
+- **Forms:** React Hook Form + Zod
+- **State Management:** React Query (Server State), Zustand/Context (UI State)
+- **Dates:** `date-fns`
+- **Deployment:** Vercel
 
-## Learn More
+## Local Development
 
-To learn more about Next.js, take a look at the following resources:
+*Instructions on how to set up the environment locally will be added here once the foundation sprint is completed.*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
