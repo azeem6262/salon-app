@@ -42,33 +42,21 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
 
       <div className="grid grid-cols-2 gap-4 -mt-2">
         <div className="glass-card p-5 rounded-[2rem] flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.03] transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform">
-            <DollarSign className="w-20 h-20" />
-          </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider z-10">Total Sales</p>
           <p className="text-3xl font-bold text-slate-900 z-10">₹{stats.totalSales.toFixed(2)}</p>
         </div>
         
         <div className="glass-card p-5 rounded-[2rem] flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.03] transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform">
-            <Users className="w-20 h-20" />
-          </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider z-10">Total Clients</p>
           <p className="text-3xl font-bold text-slate-900 z-10">{stats.totalClients}</p>
         </div>
 
         <div className="glass-card p-5 rounded-[2rem] flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.03] transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform">
-            <Calendar className="w-20 h-20" />
-          </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider z-10">Bookings</p>
           <p className="text-3xl font-bold text-slate-900 z-10">{stats.totalBookings}</p>
         </div>
 
         <div className="glass-card p-5 rounded-[2rem] flex flex-col gap-2 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-[0.03] transform translate-x-2 -translate-y-2 group-hover:scale-110 transition-transform">
-            <UserX className="w-20 h-20" />
-          </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider z-10">No-Shows</p>
           <p className="text-3xl font-bold text-slate-900 z-10">{stats.noShowCount}</p>
         </div>
