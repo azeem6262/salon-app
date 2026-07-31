@@ -24,6 +24,8 @@ export async function GET(request: Request) {
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
+    } else {
+      console.error("Supabase Auth Error:", error)
     }
   }
 

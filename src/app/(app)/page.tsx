@@ -104,13 +104,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         )}
       </div>
 
-      <div className="sticky bottom-4 left-0 right-0 flex justify-center z-20 mt-auto">
+      <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-md pointer-events-none z-50 flex justify-end px-6">
         <Link 
           href="/bookings/new"
-          className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-4 rounded-full font-bold shadow-xl shadow-indigo-500/40 touch-scale hover:shadow-indigo-500/50"
+          className="pointer-events-auto group flex items-center justify-center bg-gradient-to-tr from-indigo-600 to-fuchsia-500 text-white w-14 h-14 rounded-full shadow-[0_8px_30px_rgb(99,102,241,0.4)] touch-scale hover:shadow-[0_8px_30px_rgb(99,102,241,0.6)] transition-all duration-300 hover:-translate-y-1"
         >
-          <Plus className="w-5 h-5 stroke-[3px]" />
-          Add Booking
+          <Plus className="w-6 h-6 stroke-[3px] transition-transform duration-300 group-hover:rotate-180" />
         </Link>
       </div>
     </div>
