@@ -15,8 +15,12 @@ export function BottomNav() {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 px-4 pb-6 pt-2 pointer-events-none">
-      <div className="flex items-center justify-around glass-card rounded-[2rem] py-2 px-2 shadow-xl border border-white/80 pointer-events-auto">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 pointer-events-none flex flex-col justify-end h-32">
+      {/* Fade mask behind the nav to smoothly hide scrolling text */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#f8fafc] via-[#f8fafc]/90 to-transparent -z-10" />
+      
+      <div className="px-4 pb-6 pt-2">
+        <div className="flex items-center justify-around glass-card rounded-[2rem] py-2 px-2 shadow-xl border border-white/80 pointer-events-auto">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href || (tab.href !== '/' && pathname.startsWith(tab.href))
           const Icon = tab.icon
@@ -33,6 +37,7 @@ export function BottomNav() {
             </Link>
           )
         })}
+        </div>
       </div>
     </nav>
   )
