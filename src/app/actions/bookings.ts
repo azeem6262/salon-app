@@ -28,10 +28,10 @@ export async function addBooking(formData: FormData) {
   // Parse time and date properly to a UTC timestamptz
   const bookingDateTime = new Date(`${bookingDate}T${bookingTime}`).toISOString()
 
-  // 1. Check if customer exists by phone in this org
-  let customerId = ''
+  // 1. Check if customer exists by ID or phone in this org
+  let customerId = formData.get('customerId') as string
   
-  if (customerPhone) {
+  if (!customerId && customerPhone) {
     const { data: existingCustomer } = await supabase
       .from('customers')
       .select('id')

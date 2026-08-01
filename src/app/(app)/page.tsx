@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Plus, Calendar, DollarSign, Users, UserX } from 'lucide-react'
 import Link from 'next/link'
+import AddBookingFAB from './AddBookingFAB'
 import DashboardFilters from './DashboardFilters'
 import { getDashboardStats } from '@/app/actions/analytics'
 import { Suspense } from 'react'
@@ -92,14 +93,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         )}
       </div>
 
-      <div className="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-md pointer-events-none z-50 flex justify-end px-6">
-        <Link 
-          href="/bookings/new"
-          className="pointer-events-auto group flex items-center justify-center bg-gradient-to-tr from-indigo-600 to-fuchsia-500 text-white w-14 h-14 rounded-full shadow-[0_8px_30px_rgb(99,102,241,0.4)] touch-scale hover:shadow-[0_8px_30px_rgb(99,102,241,0.6)] transition-all duration-300 hover:-translate-y-1"
-        >
-          <Plus className="w-6 h-6 stroke-[3px] transition-transform duration-300 group-hover:rotate-180" />
-        </Link>
-      </div>
+      <AddBookingFAB />
     </div>
   )
 }
