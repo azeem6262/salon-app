@@ -18,7 +18,7 @@ export async function addBooking(formData: FormData) {
   
   const customerName = formData.get('customerName') as string
   const customerPhone = formData.get('customerPhone') as string
-  const serviceId = formData.get('serviceId') as string
+  const serviceIds = formData.getAll('serviceIds') as string[]
   const stylistId = formData.get('stylistId') as string
   const bookingDate = formData.get('bookingDate') as string
   const bookingTime = formData.get('bookingTime') as string
@@ -64,7 +64,8 @@ export async function addBooking(formData: FormData) {
   }
 
   // Get snapshots
-  const { data: service } = await supabase.from('services').select('name').eq('id', serviceId).single()
+  const { data: services } = await supabase.from('services').select('name').in('id', serviceIds)
+  const serviceNameSnapshot = services?.map(s => s.name).join(' + ') || 'Unknown Service'
   const { data: stylist } = await supabase.from('stylists').select('name').eq('id', stylistId).single()
 
   // 3. Create the booking
@@ -73,8 +74,9 @@ export async function addBooking(formData: FormData) {
     .insert({
       org_id: orgId,
       customer_id: customerId,
-      service_id: serviceId,
-      service_name_snapshot: service?.name || 'Unknown Service',
+      service_id: serviceIds[0] || null,
+      service_ids: serviceIds,
+      service_name_snapshot: serviceNameSnapshot,
       stylist_id: stylistId,
       stylist_name_snapshot: stylist?.name || 'Unknown Provider',
       price,

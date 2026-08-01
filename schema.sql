@@ -39,6 +39,7 @@ CREATE TABLE bookings (
   org_id uuid REFERENCES organizations(id) ON DELETE CASCADE NOT NULL,
   customer_id uuid REFERENCES customers(id) ON DELETE CASCADE NOT NULL,
   service_id uuid REFERENCES services(id) ON DELETE SET NULL,
+  service_ids uuid[],
   service_name_snapshot text NOT NULL,
   price numeric NOT NULL,
   stylist_id uuid REFERENCES stylists(id) ON DELETE SET NULL,

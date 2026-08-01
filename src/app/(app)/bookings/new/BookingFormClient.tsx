@@ -5,18 +5,19 @@ import { addBooking } from '@/app/actions/bookings'
 import { Check } from 'lucide-react'
 
 export default function BookingFormClient({ services, stylists }: { services: any[], stylists: any[] }) {
-  const [selectedService, setSelectedService] = useState<any>(null)
+  const [selectedServices, setSelectedServices] = useState<any[]>([])
   const [price, setPrice] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [phoneError, setPhoneError] = useState<string | null>(null)
 
-  const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const sId = e.target.value
-    const s = services.find(x => x.id === sId)
-    setSelectedService(s)
-    if (s) {
-      setPrice(s.default_price)
-    }
+  const toggleService = (s: any) => {
+    setSelectedServices(prev => {
+      const isSelected = prev.some(x => x.id === s.id)
+      const next = isSelected ? prev.filter(x => x.id !== s.id) : [...prev, s]
+      const newPrice = next.reduce((sum, curr) => sum + curr.default_price, 0)
+      setPrice(newPrice)
+      return next
+    })
   }
 
   const validateAndSubmit = async (formData: FormData) => {
@@ -30,6 +31,10 @@ export default function BookingFormClient({ services, stylists }: { services: an
         setPhoneError('Please enter a valid 10-digit mobile number.')
         return
       }
+    }
+    
+    if (selectedServices.length === 0) {
+      return // Prevent submission if no services selected
     }
     
     setPhoneError(null)
@@ -72,13 +77,26 @@ export default function BookingFormClient({ services, stylists }: { services: an
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Service</label>
-        <select name="serviceId" required onChange={handleServiceChange} className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-inner appearance-none">
-          <option value="">Select a service...</option>
-          {services.map(s => (
-            <option key={s.id} value={s.id}>{s.name} - ₹{s.default_price}</option>
-          ))}
-        </select>
+        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Services</label>
+        <div className="flex flex-wrap gap-2">
+          {services.map(s => {
+            const isSelected = selectedServices.some(x => x.id === s.id)
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => toggleService(s)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${isSelected ? 'bg-indigo-600 text-white border-indigo-600 shadow-md scale-105' : 'bg-white/60 text-slate-700 border-white/60 hover:bg-white touch-scale'}`}
+              >
+                {s.name} (₹{s.default_price})
+              </button>
+            )
+          })}
+        </div>
+        {selectedServices.map(s => (
+          <input key={s.id} type="hidden" name="serviceIds" value={s.id} />
+        ))}
+        {selectedServices.length === 0 && <span className="text-xs font-bold text-red-500">Please select at least one service.</span>}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -114,7 +132,7 @@ export default function BookingFormClient({ services, stylists }: { services: an
 
       <button 
         type="submit" 
-        disabled={isSubmitting}
+        disabled={isSubmitting || selectedServices.length === 0}
         className="flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-xl py-4 mt-2 font-bold shadow-lg shadow-indigo-500/30 touch-scale hover:shadow-indigo-500/40 disabled:opacity-50"
       >
         {isSubmitting ? 'Saving...' : (
