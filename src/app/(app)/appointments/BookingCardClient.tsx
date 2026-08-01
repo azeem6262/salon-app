@@ -48,6 +48,15 @@ export default function BookingCardClient({ booking, isPast }: { booking: any, i
           )}
         </div>
       </div>
+      
+      {booking.follow_up_note && (
+        <div className="bg-orange-50/50 p-3 rounded-xl border border-orange-100">
+          <p className="text-sm font-medium text-slate-700">
+            <span className="font-bold text-orange-600 mr-2">Note:</span>
+            {booking.follow_up_note}
+          </p>
+        </div>
+      )}
 
       {!isPast && (
         <div className="flex gap-2 pt-3 border-t border-white/60">

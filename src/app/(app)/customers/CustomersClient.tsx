@@ -88,26 +88,34 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                     ) : (
                       <div className="flex flex-col gap-3">
                         {customer.sortedBookings.map((booking: any) => (
-                          <div key={booking.id} className="flex justify-between items-center bg-white/60 p-3 rounded-xl shadow-sm">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-bold text-slate-900">
-                                  {new Date(booking.booking_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </p>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                                  booking.status === 'completed' ? 'text-teal-600 bg-teal-50 border-teal-100' :
-                                  booking.status === 'no_show' ? 'text-red-600 bg-red-50 border-red-100' :
-                                  'text-slate-600 bg-slate-50 border-slate-100'
-                                }`}>
-                                  {booking.status.toUpperCase().replace('_', ' ')}
-                                </span>
+                          <div key={booking.id} className="flex flex-col gap-1 mb-2">
+                            <div className="flex justify-between items-center bg-white/60 p-3 rounded-xl shadow-sm">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <p className="text-sm font-bold text-slate-900">
+                                    {new Date(booking.booking_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                  </p>
+                                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                                    booking.status === 'completed' ? 'text-teal-600 bg-teal-50 border-teal-100' :
+                                    booking.status === 'no_show' ? 'text-red-600 bg-red-50 border-red-100' :
+                                    'text-slate-600 bg-slate-50 border-slate-100'
+                                  }`}>
+                                    {booking.status.toUpperCase().replace('_', ' ')}
+                                  </span>
+                                </div>
+                                <p className="text-xs font-medium text-slate-500">{booking.service_name_snapshot} • {booking.stylist_name_snapshot}</p>
                               </div>
-                              <p className="text-xs font-medium text-slate-500">{booking.service_name_snapshot} • {booking.stylist_name_snapshot}</p>
+                              <div className="text-right">
+                                <p className="font-bold text-teal-600 text-sm">₹{booking.price}</p>
+                                <p className="text-xs font-bold text-indigo-600">{booking.time_slot}</p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold text-teal-600 text-sm">₹{booking.price}</p>
-                              <p className="text-xs font-bold text-indigo-600">{booking.time_slot}</p>
-                            </div>
+                            {booking.follow_up_note && (
+                              <div className="bg-orange-50/50 p-2.5 rounded-xl border border-orange-100 text-xs text-slate-700 mt-1 mx-1">
+                                <span className="font-bold text-orange-600 mr-1">Note:</span>
+                                {booking.follow_up_note}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>

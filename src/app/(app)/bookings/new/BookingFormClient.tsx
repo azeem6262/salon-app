@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { addBooking } from '@/app/actions/bookings'
 import { Check } from 'lucide-react'
+import { format } from 'date-fns'
 
 export default function BookingFormClient({ services, stylists }: { services: any[], stylists: any[] }) {
   const [selectedServices, setSelectedServices] = useState<any[]>([])
@@ -112,7 +113,7 @@ export default function BookingFormClient({ services, stylists }: { services: an
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Date</label>
-          <input type="date" name="bookingDate" required defaultValue={new Date().toISOString().split('T')[0]} className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-inner" />
+          <input type="date" name="bookingDate" required defaultValue={format(new Date(), 'yyyy-MM-dd')} className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-inner" />
         </div>
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Time</label>

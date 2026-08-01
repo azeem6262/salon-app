@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Calendar } from 'lucide-react'
 import Link from 'next/link'
+import { format } from 'date-fns'
 import BookingCardClient from './BookingCardClient'
 
 export default async function AppointmentsPage({ searchParams }: { searchParams: { tab?: string } }) {
@@ -13,23 +14,24 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
   // Next 14.x is synchronous, Next 15 is a Promise. Our user rules say "This version has breaking changes" - Next 15.
   // Let's await searchParams if it's a promise, or safely use it.
   const resolvedParams = await searchParams
-  const tab = resolvedParams?.tab || 'upcoming'
-  const todayDateStr = new Date().toISOString().split('T')[0]
+  const tab = resolvedParams?.tab || 'pending'
+  const todayDateStr = format(new Date(), 'yyyy-MM-dd')
 
   let query = supabase
     .from('bookings')
     .select(`
-      id, booking_date, time_slot, price, status,
+      id, booking_date, time_slot, price, status, follow_up_note,
       service_name_snapshot, stylist_name_snapshot,
       customers (name, phone)
     `)
     .eq('org_id', org?.id)
 
-  if (tab === 'upcoming') {
-    query = query.gte('booking_date', todayDateStr).eq('status', 'confirmed').order('booking_date', { ascending: true }).order('time_slot', { ascending: true })
-  } else {
-    // Past or completed/no-show
-    query = query.or(`booking_date.lt.${todayDateStr},status.in.(completed,no_show)`).order('booking_date', { ascending: false }).order('time_slot', { ascending: false })
+  if (tab === 'pending') {
+    query = query.eq('status', 'confirmed').order('booking_date', { ascending: true }).order('time_slot', { ascending: true })
+  } else if (tab === 'completed') {
+    query = query.eq('status', 'completed').order('booking_date', { ascending: false }).order('time_slot', { ascending: false })
+  } else if (tab === 'no_show') {
+    query = query.eq('status', 'no_show').order('booking_date', { ascending: false }).order('time_slot', { ascending: false })
   }
 
   const { data: bookings } = await query
@@ -49,19 +51,24 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
         <h2 className="text-2xl font-bold text-slate-900 ml-4">Appointments</h2>
       </div>
 
-      {/* Tabs */}
-      <div className="flex bg-white/60 p-1 rounded-2xl shadow-sm border border-white/60">
+      <div className="flex bg-white/60 p-1 rounded-2xl shadow-sm border border-white/60 text-sm">
         <Link 
-          href="/appointments?tab=upcoming" 
-          className={`flex-1 text-center py-3 rounded-xl font-bold transition-all ${tab === 'upcoming' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+          href="/appointments?tab=pending" 
+          className={`flex-1 text-center py-2 rounded-xl font-bold transition-all ${tab === 'pending' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
         >
-          Upcoming
+          Pending
         </Link>
         <Link 
-          href="/appointments?tab=past" 
-          className={`flex-1 text-center py-3 rounded-xl font-bold transition-all ${tab === 'past' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+          href="/appointments?tab=completed" 
+          className={`flex-1 text-center py-2 rounded-xl font-bold transition-all ${tab === 'completed' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
         >
-          Past
+          Completed
+        </Link>
+        <Link 
+          href="/appointments?tab=no_show" 
+          className={`flex-1 text-center py-2 rounded-xl font-bold transition-all ${tab === 'no_show' ? 'bg-red-500 text-white shadow-md' : 'text-slate-500 hover:text-slate-900'}`}
+        >
+          No-Shows
         </Link>
       </div>
 
@@ -78,7 +85,7 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
             <div key={date} className="flex flex-col gap-3">
               <h3 className="font-bold text-slate-900 ml-2">{new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h3>
               {groupedBookings[date].map((booking: any) => (
-                <BookingCardClient key={booking.id} booking={booking} isPast={tab === 'past'} />
+                <BookingCardClient key={booking.id} booking={booking} isPast={tab !== 'pending'} />
               ))}
             </div>
           ))

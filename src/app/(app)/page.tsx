@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Plus, Calendar, DollarSign, Users, UserX } from 'lucide-react'
 import Link from 'next/link'
+import { format } from 'date-fns'
 import AddBookingFAB from './AddBookingFAB'
 import DashboardFilters from './DashboardFilters'
 import { getDashboardStats } from '@/app/actions/analytics'
@@ -18,7 +19,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
 
   const stats = await getDashboardStats(range, start, end)
 
-  const todayDateStr = new Date().toISOString().split('T')[0]
+  const todayDateStr = format(new Date(), 'yyyy-MM-dd')
 
   const { data: bookings } = await supabase
     .from('bookings')
@@ -29,6 +30,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
     `)
     .eq('org_id', org?.id)
     .eq('booking_date', todayDateStr)
+    .neq('status', 'no_show')
     .order('time_slot', { ascending: true })
 
   return (
@@ -48,7 +50,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
         </div>
         
         <div className="glass-card p-5 rounded-[2rem] flex flex-col gap-2 relative overflow-hidden group">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider z-10">Total Clients</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider z-10">Unique Clients</p>
           <p className="text-3xl font-bold text-slate-900 z-10">{stats.totalClients}</p>
         </div>
 

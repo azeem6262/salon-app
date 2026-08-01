@@ -11,7 +11,7 @@ export default async function CustomersPage() {
     .select(`
       id, name, phone,
       bookings (
-        id, service_name_snapshot, stylist_name_snapshot, price, booking_date, time_slot, status
+        id, service_name_snapshot, stylist_name_snapshot, price, booking_date, time_slot, status, follow_up_note
       )
     `)
     .eq('org_id', org?.id)
