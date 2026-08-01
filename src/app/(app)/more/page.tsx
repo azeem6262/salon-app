@@ -36,12 +36,12 @@ export default async function MorePage() {
           </div>
           <ChevronRight className="w-5 h-5 text-slate-400" />
         </Link>
-        <Link href="/more/stylists" className="flex items-center justify-between p-5 border-b border-white/40 hover:bg-white/40 active:bg-white/60 transition-colors touch-scale">
+        <Link href="/more/providers" className="flex items-center justify-between p-5 border-b border-white/40 hover:bg-white/40 active:bg-white/60 transition-colors touch-scale">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gradient-to-br from-indigo-400 to-indigo-500 text-white rounded-2xl shadow-sm shadow-indigo-500/20">
               <Users className="w-5 h-5" />
             </div>
-            <span className="font-bold text-slate-800">Manage Stylists</span>
+            <span className="font-bold text-slate-800">Manage Service Providers</span>
           </div>
           <ChevronRight className="w-5 h-5 text-slate-400" />
         </Link>

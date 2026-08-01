@@ -12,7 +12,7 @@ async function getOrg() {
   return { supabase, orgId: org.id, userId: user.id }
 }
 
-export async function addStylist(formData: FormData) {
+export async function addProvider(formData: FormData) {
   const { supabase, orgId, userId } = await getOrg()
   const name = formData.get('name') as string
 
@@ -27,11 +27,11 @@ export async function addStylist(formData: FormData) {
     throw new Error(error.message)
   }
   
-  revalidatePath('/more/stylists')
+  revalidatePath('/more/providers')
 }
 
-export async function deleteStylist(id: string) {
+export async function deleteProvider(id: string) {
   const { supabase, orgId } = await getOrg()
   await supabase.from('stylists').delete().match({ id, org_id: orgId })
-  revalidatePath('/more/stylists')
+  revalidatePath('/more/providers')
 }

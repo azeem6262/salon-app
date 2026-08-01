@@ -76,7 +76,7 @@ export async function addBooking(formData: FormData) {
       service_id: serviceId,
       service_name_snapshot: service?.name || 'Unknown Service',
       stylist_id: stylistId,
-      stylist_name_snapshot: stylist?.name || 'Unknown Stylist',
+      stylist_name_snapshot: stylist?.name || 'Unknown Provider',
       price,
       booking_date: bookingDate,
       time_slot: bookingTime,

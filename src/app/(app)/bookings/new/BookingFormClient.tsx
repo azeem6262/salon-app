@@ -82,9 +82,9 @@ export default function BookingFormClient({ services, stylists }: { services: an
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stylist</label>
+        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Service Provider</label>
         <select name="stylistId" required className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-inner appearance-none">
-          <option value="">Select a stylist...</option>
+          <option value="">Select a provider...</option>
           {stylists.map(s => (
             <option key={s.id} value={s.id}>{s.name}</option>
           ))}
