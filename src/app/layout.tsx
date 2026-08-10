@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
+import InstallPrompt from "@/components/InstallPrompt";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -36,7 +37,10 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <InstallPrompt />
+      </body>
     </html>
   );
 }
