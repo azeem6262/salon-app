@@ -86,7 +86,7 @@ export async function addBooking(formData: FormData) {
       stylist_name_snapshot: stylist?.name || 'Unknown Provider',
       price,
       booking_date: bookingDate,
-      time_slot: bookingTime || null,
+      time_slot: bookingTime || 'TBD',
       status: 'confirmed',
       follow_up_note: notes || null
     })
