@@ -11,7 +11,12 @@ export default function ExistingBookingFormClient({ services, stylists }: { serv
   const [price, setPrice] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  // Search state
+  // Service Search state
+  const [serviceSearch, setServiceSearch] = useState('')
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
+  const filteredServices = services.filter(s => s.name.toLowerCase().includes(serviceSearch.toLowerCase()))
+
+  // Customer Search state
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -139,23 +144,68 @@ export default function ExistingBookingFormClient({ services, stylists }: { serv
             </button>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 relative z-20">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Services</label>
-            <div className="flex flex-wrap gap-2">
-              {services.map(s => {
-                const isSelected = selectedServices.some(x => x.id === s.id)
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => toggleService(s)}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${isSelected ? 'bg-fuchsia-600 text-white border-fuchsia-600 shadow-md scale-105' : 'bg-white/60 text-slate-700 border-white/60 hover:bg-white touch-scale'}`}
+            
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search and select services..." 
+                value={serviceSearch}
+                onChange={(e) => {
+                  setServiceSearch(e.target.value)
+                  setIsServiceDropdownOpen(true)
+                }}
+                onFocus={() => setIsServiceDropdownOpen(true)}
+                className="w-full rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 outline-none transition-all shadow-inner"
+              />
+              
+              {isServiceDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-100 max-h-56 overflow-y-auto z-30 flex flex-col">
+                  {filteredServices.length > 0 ? filteredServices.map(s => {
+                    const isSelected = selectedServices.some(x => x.id === s.id)
+                    return (
+                      <div 
+                        key={s.id}
+                        onClick={() => toggleService(s)}
+                        className={`px-4 py-3 cursor-pointer flex justify-between items-center border-b border-slate-50 last:border-0 hover:bg-fuchsia-50 transition-colors ${isSelected ? 'bg-fuchsia-50/50' : ''}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${isSelected ? 'border-fuchsia-600 bg-fuchsia-600' : 'border-slate-300'}`}>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                          </div>
+                          <span className={`text-sm ${isSelected ? 'font-bold text-fuchsia-700' : 'font-medium text-slate-700'}`}>{s.name}</span>
+                        </div>
+                        <span className="text-xs font-bold text-slate-500">₹{s.default_price}</span>
+                      </div>
+                    )
+                  }) : (
+                    <div className="px-4 py-4 text-sm text-slate-500 text-center font-medium">No services found.</div>
+                  )}
+                  
+                  <div 
+                    className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm border-t border-slate-100 text-center py-3 text-sm font-bold text-fuchsia-600 cursor-pointer hover:bg-slate-100 transition-colors"
+                    onClick={() => setIsServiceDropdownOpen(false)}
                   >
-                    {s.name} (₹{s.default_price})
-                  </button>
-                )
-              })}
+                    Close List
+                  </div>
+                </div>
+              )}
             </div>
+
+            {selectedServices.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {selectedServices.map(s => (
+                  <div key={s.id} className="flex items-center gap-1 bg-fuchsia-100 text-fuchsia-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
+                    <span>{s.name}</span>
+                    <button type="button" onClick={() => toggleService(s)} className="text-fuchsia-400 hover:text-fuchsia-700 ml-1 p-0.5 rounded-full hover:bg-fuchsia-200 transition-colors">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {selectedServices.map(s => (
               <input key={s.id} type="hidden" name="serviceIds" value={s.id} />
             ))}
