@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Scissors, Users, Store, LogOut, ChevronRight } from 'lucide-react'
+import { Scissors, Users, Store, LogOut, ChevronRight, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function MorePage() {
@@ -46,6 +46,15 @@ export default async function MorePage() {
           </div>
           <ChevronRight className="w-5 h-5 text-slate-400" />
         </Link>
+        <a href="mailto:rummanakhtar10@gmail.com?subject=Salonly App Feedback" className="flex items-center justify-between p-5 border-b border-white/40 hover:bg-white/40 active:bg-white/60 transition-colors touch-scale">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-gradient-to-br from-fuchsia-400 to-fuchsia-500 text-white rounded-2xl shadow-sm shadow-fuchsia-500/20">
+              <MessageSquare className="w-5 h-5" />
+            </div>
+            <span className="font-bold text-slate-800">Send Feedback</span>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400" />
+        </a>
         
         <form action={async () => {
           'use server'
