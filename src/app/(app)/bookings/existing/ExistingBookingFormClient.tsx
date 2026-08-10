@@ -178,8 +178,8 @@ export default function ExistingBookingFormClient({ services, stylists }: { serv
               <input type="date" name="bookingDate" required defaultValue={format(new Date(), 'yyyy-MM-dd')} className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 outline-none transition-all shadow-inner" />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Time</label>
-              <input type="time" name="bookingTime" required className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 outline-none transition-all shadow-inner" />
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Time (Optional)</label>
+              <input type="time" name="bookingTime" className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-fuchsia-500 focus:border-fuchsia-500 outline-none transition-all shadow-inner" />
             </div>
           </div>
 

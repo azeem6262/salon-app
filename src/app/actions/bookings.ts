@@ -25,9 +25,7 @@ export async function addBooking(formData: FormData) {
   const price = parseFloat(formData.get('price') as string)
   const notes = formData.get('notes') as string
 
-  // Parse time and date properly to a UTC timestamptz
-  const bookingDateTime = new Date(`${bookingDate}T${bookingTime}`).toISOString()
-
+  // No need to parse time and date since they are saved separately.
   // 1. Check if customer exists by ID or phone in this org
   let customerId = formData.get('customerId') as string
   
@@ -46,12 +44,15 @@ export async function addBooking(formData: FormData) {
 
   // 2. If customer doesn't exist, create them
   if (!customerId) {
+    if (!customerPhone) {
+      throw new Error('Phone number is required for new customers')
+    }
     const { data: newCustomer, error: custErr } = await supabase
       .from('customers')
       .insert({
         org_id: orgId,
         name: customerName,
-        phone: customerPhone || `Unknown-${Date.now()}`
+        phone: customerPhone
       })
       .select('id')
       .single()
@@ -81,7 +82,7 @@ export async function addBooking(formData: FormData) {
       stylist_name_snapshot: stylist?.name || 'Unknown Provider',
       price,
       booking_date: bookingDate,
-      time_slot: bookingTime,
+      time_slot: bookingTime || null,
       status: 'confirmed',
       follow_up_note: notes || null
     })
