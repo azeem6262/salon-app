@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 
 async function getOrg() {
   const supabase = await createClient()
@@ -64,10 +63,15 @@ export async function addBooking(formData: FormData) {
     customerId = newCustomer.id
   }
 
-  // Get snapshots
-  const { data: services } = await supabase.from('services').select('name').in('id', serviceIds)
+  // Get snapshots (parallelized)
+  const [servicesResponse, stylistResponse] = await Promise.all([
+    supabase.from('services').select('name').in('id', serviceIds),
+    supabase.from('stylists').select('name').eq('id', stylistId).single()
+  ])
+  
+  const services = servicesResponse.data
   const serviceNameSnapshot = services?.map(s => s.name).join(' + ') || 'Unknown Service'
-  const { data: stylist } = await supabase.from('stylists').select('name').eq('id', stylistId).single()
+  const stylist = stylistResponse.data
 
   // 3. Create the booking
   const { error: bookingErr } = await supabase
@@ -92,9 +96,9 @@ export async function addBooking(formData: FormData) {
     throw new Error('Failed to create booking: ' + bookingErr.message)
   }
 
-  revalidatePath('/')
-  revalidatePath('/appointments')
-  redirect('/')
+  revalidatePath('/', 'layout')
+  
+  return { success: true }
 }
 
 export async function updateBookingStatus(id: string, status: string) {
@@ -110,6 +114,5 @@ export async function updateBookingStatus(id: string, status: string) {
     throw new Error('Failed to update booking status: ' + error.message)
   }
 
-  revalidatePath('/')
-  revalidatePath('/appointments')
+  revalidatePath('/', 'layout')
 }

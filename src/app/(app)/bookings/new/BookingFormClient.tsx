@@ -4,8 +4,10 @@ import { useState } from 'react'
 import { addBooking } from '@/app/actions/bookings'
 import { Check } from 'lucide-react'
 import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 export default function BookingFormClient({ services, stylists }: { services: any[], stylists: any[] }) {
+  const router = useRouter()
   const [selectedServices, setSelectedServices] = useState<any[]>([])
   const [price, setPrice] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -45,7 +47,10 @@ export default function BookingFormClient({ services, stylists }: { services: an
     setPhoneError(null)
     setIsSubmitting(true)
     try {
-      await addBooking(formData)
+      const res = await addBooking(formData)
+      if (res?.success) {
+        router.push('/')
+      }
     } catch (e) {
       // If it fails, enable the button again
       setIsSubmitting(false)

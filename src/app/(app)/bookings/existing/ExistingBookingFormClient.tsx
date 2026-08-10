@@ -5,8 +5,10 @@ import { addBooking } from '@/app/actions/bookings'
 import { searchCustomers } from '@/app/actions/customers'
 import { Check, Search, X, User } from 'lucide-react'
 import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 export default function ExistingBookingFormClient({ services, stylists }: { services: any[], stylists: any[] }) {
+  const router = useRouter()
   const [selectedServices, setSelectedServices] = useState<any[]>([])
   const [price, setPrice] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,7 +67,10 @@ export default function ExistingBookingFormClient({ services, stylists }: { serv
 
     setIsSubmitting(true)
     try {
-      await addBooking(formData)
+      const res = await addBooking(formData)
+      if (res?.success) {
+        router.push('/')
+      }
     } catch (e) {
       setIsSubmitting(false)
       throw e
