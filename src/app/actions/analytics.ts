@@ -58,7 +58,6 @@ export async function getDashboardStats(range: string = 'day', customStart?: str
 
   let totalSales = 0
   let noShowCount = 0
-  const uniqueClients = new Set<string>()
 
   bookings?.forEach((b) => {
     if (b.status === 'completed') {
@@ -67,14 +66,19 @@ export async function getDashboardStats(range: string = 'day', customStart?: str
     if (b.status === 'no_show') {
       noShowCount++
     }
-    if (b.customer_id) {
-      uniqueClients.add(b.customer_id)
-    }
   })
+
+  // Count new unique clients (customers created within this date range)
+  const { count: newClientsCount } = await supabase
+    .from('customers')
+    .select('id', { count: 'exact', head: true })
+    .eq('org_id', orgId)
+    .gte('created_at', startDate + 'T00:00:00.000Z')
+    .lte('created_at', endDate + 'T23:59:59.999Z')
 
   return {
     totalSales,
-    totalClients: uniqueClients.size,
+    totalClients: newClientsCount || 0,
     totalBookings: bookings?.length || 0,
     noShowCount,
   }
