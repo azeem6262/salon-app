@@ -4,7 +4,7 @@ import CustomersClient from './CustomersClient'
 export default async function CustomersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).single()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).limit(1).single()
 
   const { data: customers } = await supabase
     .from('customers')
@@ -46,3 +46,4 @@ export default async function CustomersPage() {
     </div>
   )
 }
+

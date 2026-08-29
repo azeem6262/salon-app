@@ -42,3 +42,4 @@ export async function submitOnboarding(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/')
 }
+

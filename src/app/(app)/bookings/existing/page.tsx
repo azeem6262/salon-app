@@ -9,7 +9,7 @@ export default async function ExistingBookingPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user.id).single()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user.id).limit(1).single()
   
   const { data: services } = await supabase.from('services').select('*').eq('org_id', org?.id).order('name')
   const { data: stylists } = await supabase.from('stylists').select('*').eq('org_id', org?.id).order('name')
@@ -29,3 +29,4 @@ export default async function ExistingBookingPage() {
     </div>
   )
 }
+

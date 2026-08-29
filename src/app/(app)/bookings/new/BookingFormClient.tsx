@@ -201,3 +201,4 @@ export default function BookingFormClient({ services, stylists }: { services: an
     </form>
   )
 }
+

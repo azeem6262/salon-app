@@ -32,3 +32,4 @@ export default async function AppShell({ children }: { children: React.ReactNode
     </div>
   )
 }
+

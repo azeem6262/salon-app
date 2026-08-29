@@ -19,3 +19,4 @@ export async function updateBusiness(formData: FormData) {
   revalidatePath('/more/business')
   revalidatePath('/')
 }
+

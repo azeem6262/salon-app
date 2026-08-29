@@ -10,7 +10,7 @@ import { Suspense } from 'react'
 export default async function Home({ searchParams }: { searchParams: Promise<{ range?: string, start?: string, end?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).single()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).limit(1).single()
 
   const resolvedParams = await searchParams
   const range = resolvedParams?.range || 'day'
@@ -99,3 +99,4 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ r
     </div>
   )
 }
+

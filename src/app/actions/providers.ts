@@ -7,7 +7,7 @@ async function getOrg() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user.id).single()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user.id).limit(1).single()
   if (!org) throw new Error('No organization found')
   return { supabase, orgId: org.id, userId: user.id }
 }
@@ -35,3 +35,4 @@ export async function deleteProvider(id: string) {
   await supabase.from('stylists').delete().match({ id, org_id: orgId })
   revalidatePath('/more/providers')
 }
+

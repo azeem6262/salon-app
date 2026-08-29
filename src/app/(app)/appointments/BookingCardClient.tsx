@@ -79,3 +79,4 @@ export default function BookingCardClient({ booking, isPast }: { booking: any, i
     </div>
   )
 }
+

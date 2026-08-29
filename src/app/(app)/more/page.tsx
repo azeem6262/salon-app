@@ -11,7 +11,7 @@ export default async function MorePage() {
     redirect('/login')
   }
 
-  const { data: org } = await supabase.from('organizations').select('*').eq('owner_user_id', user.id).single()
+  const { data: org } = await supabase.from('organizations').select('*').eq('owner_user_id', user.id).limit(1).single()
 
   return (
     <div className="flex flex-col gap-6">
@@ -75,3 +75,4 @@ export default async function MorePage() {
     </div>
   )
 }
+

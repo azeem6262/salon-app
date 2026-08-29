@@ -7,7 +7,7 @@ import BookingCardClient from './BookingCardClient'
 export default async function AppointmentsPage({ searchParams }: { searchParams: { tab?: string } }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).single()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).limit(1).single()
 
   // In Next.js 13+ searchParams in page components is actually a promise if you are in React 19/Next 15
   // But wait, depending on the Next.js version, it might be synchronously accessible or a Promise.
@@ -94,3 +94,4 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
     </div>
   )
 }
+

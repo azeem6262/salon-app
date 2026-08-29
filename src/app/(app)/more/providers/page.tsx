@@ -7,7 +7,7 @@ export default async function ProvidersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).single()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user?.id).limit(1).single()
   const { data: providers } = await supabase.from('stylists').select('*').eq('org_id', org?.id).order('created_at', { ascending: false })
 
   return (
@@ -57,3 +57,4 @@ export default async function ProvidersPage() {
     </div>
   )
 }
+

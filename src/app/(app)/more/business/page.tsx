@@ -7,7 +7,7 @@ export default async function BusinessProfilePage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
-  const { data: org } = await supabase.from('organizations').select('*').eq('owner_user_id', user?.id).single()
+  const { data: org } = await supabase.from('organizations').select('*').eq('owner_user_id', user?.id).limit(1).single()
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-140px)]">
@@ -54,3 +54,4 @@ export default async function BusinessProfilePage() {
     </div>
   )
 }
+
