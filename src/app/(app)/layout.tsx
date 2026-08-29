@@ -11,11 +11,16 @@ export default async function AppShell({ children }: { children: React.ReactNode
     redirect('/login')
   }
 
-  const { data: org } = await supabase
+  const { data: org, error } = await supabase
     .from('organizations')
     .select('*')
     .eq('owner_user_id', user.id)
+    .limit(1)
     .maybeSingle()
+
+  if (error) {
+    console.error('Error fetching org in AppShell:', error)
+  }
 
   if (!org) {
     redirect('/onboarding')

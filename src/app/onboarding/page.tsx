@@ -8,7 +8,7 @@ export default async function OnboardingPage() {
 
   if (!user) redirect('/login')
 
-  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user.id).maybeSingle()
+  const { data: org } = await supabase.from('organizations').select('id').eq('owner_user_id', user.id).limit(1).maybeSingle()
   if (org) redirect('/')
 
   return (

@@ -15,6 +15,19 @@ export async function submitOnboarding(formData: FormData) {
   const businessType = formData.get('businessType') as string
   const name = formData.get('name') as string
 
+  // Prevent creating duplicates if they click multiple times
+  const { data: existingOrg } = await supabase
+    .from('organizations')
+    .select('id')
+    .eq('owner_user_id', user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (existingOrg) {
+    revalidatePath('/', 'layout')
+    redirect('/')
+  }
+
   const { error } = await supabase.from('organizations').insert({
     owner_user_id: user.id,
     name,
