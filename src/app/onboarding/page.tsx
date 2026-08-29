@@ -1,4 +1,4 @@
-import { submitOnboarding } from '@/app/actions'
+import { submitOnboarding } from '@/app/actions/onboarding'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
