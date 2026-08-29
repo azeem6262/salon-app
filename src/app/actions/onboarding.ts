@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export async function submitOnboarding(formData: FormData) {
   const supabase = await createClient()
@@ -25,5 +26,6 @@ export async function submitOnboarding(formData: FormData) {
     throw new Error('Failed to create organization')
   }
 
+  revalidatePath('/', 'layout')
   redirect('/')
 }
