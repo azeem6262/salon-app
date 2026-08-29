@@ -18,17 +18,13 @@ export default async function AppShell({ children }: { children: React.ReactNode
     .limit(1)
     .maybeSingle()
 
-  if (error) {
-    console.error('Error fetching org in AppShell:', error)
-  }
-
-  if (!org) {
+  if (error || !org) {
     redirect('/onboarding')
   }
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-mesh-light pb-24 max-w-md mx-auto w-full shadow-2xl relative overflow-x-hidden">
-      <TopBar orgName={org.name} />
+      <TopBar orgName={org!.name} />
       <main className="flex-1 w-full px-4 pt-4 pb-8 overflow-y-auto">
         {children}
       </main>

@@ -14,8 +14,8 @@ const supabase = createClient(
 );
 
 async function check() {
-  const { data: orgs, error } = await supabase.from('organizations').select('*');
-  console.log('Organizations:', orgs);
+  const { data: org, error } = await supabase.from('organizations').select('id').eq('owner_user_id', '6a501f1a-2b2d-4aba-9b58-d95e87f09e42').limit(1).maybeSingle();
+  console.log('Org:', org);
   if (error) console.error('Error:', error);
 }
 
