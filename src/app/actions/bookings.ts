@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { parseBookingPayment, encodePaymentIntoNote } from '@/lib/payments'
+import { format } from 'date-fns'
 
 async function getOrg() {
   const supabase = await createClient()
@@ -24,7 +26,15 @@ export async function addBooking(formData: FormData) {
   const price = parseFloat(formData.get('price') as string)
   const notes = formData.get('notes') as string
 
-  // No need to parse time and date since they are saved separately.
+  // Partial Payment Support
+  const rawPaid = formData.get('paidAmount') as string
+  const paidAmount = rawPaid !== null && rawPaid !== '' && !isNaN(parseFloat(rawPaid)) 
+    ? Math.max(0, parseFloat(rawPaid)) 
+    : price
+  const initialHistory = paidAmount > 0 
+    ? [{ date: bookingDate || format(new Date(), 'yyyy-MM-dd'), amount: paidAmount, note: 'Initial payment' }]
+    : []
+
   // 1. Check if customer exists by ID or phone in this org
   let customerId = formData.get('customerId') as string
   
@@ -73,23 +83,49 @@ export async function addBooking(formData: FormData) {
   const serviceNameSnapshot = services?.map(s => s.name).join(' + ') || 'Unknown Service'
   const stylist = stylistResponse.data
 
-  // 3. Create the booking
-  const { error: bookingErr } = await supabase
+  // 3. Create the booking - try with paid_amount column first
+  const bookingInsertData: any = {
+    org_id: orgId,
+    customer_id: customerId,
+    service_id: serviceIds[0] || null,
+    service_ids: serviceIds,
+    service_name_snapshot: serviceNameSnapshot,
+    stylist_id: stylistId,
+    stylist_name_snapshot: stylist?.name || 'Unknown Provider',
+    price,
+    paid_amount: paidAmount,
+    payment_history: initialHistory,
+    booking_date: bookingDate,
+    time_slot: bookingTime || 'TBD',
+    status: 'confirmed',
+    follow_up_note: notes || null
+  }
+
+  let { error: bookingErr } = await supabase
     .from('bookings')
-    .insert({
-      org_id: orgId,
-      customer_id: customerId,
-      service_id: serviceIds[0] || null,
-      service_ids: serviceIds,
-      service_name_snapshot: serviceNameSnapshot,
-      stylist_id: stylistId,
-      stylist_name_snapshot: stylist?.name || 'Unknown Provider',
-      price,
-      booking_date: bookingDate,
-      time_slot: bookingTime || 'TBD',
-      status: 'confirmed',
-      follow_up_note: notes || null
-    })
+    .insert(bookingInsertData)
+
+  // Resilient fallback: if columns don't exist yet in Supabase, encode into follow_up_note
+  if (bookingErr && (bookingErr.message.includes('column') || bookingErr.code === 'PGRST204')) {
+    const fallbackNote = encodePaymentIntoNote(notes, paidAmount, initialHistory)
+    const { error: fallbackErr } = await supabase
+      .from('bookings')
+      .insert({
+        org_id: orgId,
+        customer_id: customerId,
+        service_id: serviceIds[0] || null,
+        service_ids: serviceIds,
+        service_name_snapshot: serviceNameSnapshot,
+        stylist_id: stylistId,
+        stylist_name_snapshot: stylist?.name || 'Unknown Provider',
+        price,
+        booking_date: bookingDate,
+        time_slot: bookingTime || 'TBD',
+        status: 'confirmed',
+        follow_up_note: fallbackNote
+      })
+    bookingErr = fallbackErr
+  }
 
   if (bookingErr) {
     console.error("Booking Insert Error:", bookingErr)
@@ -144,6 +180,9 @@ export async function updateBooking(id: string, formData: FormData) {
   const price = parseFloat(formData.get('price') as string)
   const status = formData.get('status') as string
   const notes = formData.get('notes') as string
+  const rawPaid = formData.get('paidAmount') as string
+  const hasPaid = rawPaid !== null && rawPaid !== undefined && rawPaid !== '' && !isNaN(parseFloat(rawPaid))
+  const paidAmount = hasPaid ? Math.max(0, parseFloat(rawPaid)) : undefined
 
   // Parallel fetch snapshots if needed
   const [servicesResponse, stylistResponse] = await Promise.all([
@@ -171,12 +210,26 @@ export async function updateBooking(id: string, formData: FormData) {
   if (serviceNameSnapshot) updatePayload.service_name_snapshot = serviceNameSnapshot
   if (stylistId) updatePayload.stylist_id = stylistId
   if (stylistNameSnapshot) updatePayload.stylist_name_snapshot = stylistNameSnapshot
+  if (paidAmount !== undefined) updatePayload.paid_amount = paidAmount
   if (notes !== undefined) updatePayload.follow_up_note = notes || null
 
-  const { error } = await supabase
+  let { error } = await supabase
     .from('bookings')
     .update(updatePayload)
     .match({ id, org_id: orgId })
+
+  // Fallback if paid_amount column does not exist
+  if (error && (error.message.includes('column') || error.code === 'PGRST204')) {
+    delete updatePayload.paid_amount
+    if (paidAmount !== undefined) {
+      updatePayload.follow_up_note = encodePaymentIntoNote(notes, paidAmount, [{ date: format(new Date(), 'yyyy-MM-dd'), amount: paidAmount, note: 'Updated payment' }])
+    }
+    const { error: fallbackErr } = await supabase
+      .from('bookings')
+      .update(updatePayload)
+      .match({ id, org_id: orgId })
+    error = fallbackErr
+  }
 
   if (error) {
     console.error("Booking Update Error:", error)
@@ -186,4 +239,59 @@ export async function updateBooking(id: string, formData: FormData) {
   revalidatePath('/', 'layout')
   return { success: true }
 }
+
+export async function recordPayment(bookingId: string, amount: number, note?: string) {
+  const { supabase, orgId } = await getOrg()
+  if (isNaN(amount) || amount <= 0) throw new Error('Payment amount must be greater than 0')
+
+  const { data: booking, error: fetchErr } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('id', bookingId)
+    .eq('org_id', orgId)
+    .single()
+
+  if (fetchErr || !booking) throw new Error('Booking not found')
+
+  const paymentData = parseBookingPayment(booking)
+  const newPaidAmount = paymentData.paidAmount + amount
+  const newHistory = [
+    ...paymentData.history,
+    {
+      date: format(new Date(), 'yyyy-MM-dd'),
+      amount,
+      note: note || 'Installment payment'
+    }
+  ]
+
+  let { error: updateErr } = await supabase
+    .from('bookings')
+    .update({
+      paid_amount: newPaidAmount,
+      payment_history: newHistory,
+      updated_at: new Date().toISOString()
+    })
+    .match({ id: bookingId, org_id: orgId })
+
+  if (updateErr && (updateErr.message.includes('column') || updateErr.code === 'PGRST204')) {
+    const updatedNote = encodePaymentIntoNote(paymentData.cleanNote, newPaidAmount, newHistory)
+    const { error: fallbackErr } = await supabase
+      .from('bookings')
+      .update({
+        follow_up_note: updatedNote,
+        updated_at: new Date().toISOString()
+      })
+      .match({ id: bookingId, org_id: orgId })
+    updateErr = fallbackErr
+  }
+
+  if (updateErr) {
+    console.error('Record Payment Error:', updateErr)
+    throw new Error('Failed to record payment: ' + updateErr.message)
+  }
+
+  revalidatePath('/', 'layout')
+  return { success: true, newPaidAmount, balance: Math.max(0, paymentData.totalPrice - newPaidAmount) }
+}
+
 

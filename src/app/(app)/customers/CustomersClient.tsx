@@ -51,7 +51,7 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                 >
                   <div className="flex-1">
                     <h3 className="font-bold text-slate-900 text-lg">{customer.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {hasPhone && (
                         <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
                           {customer.phone}
@@ -60,6 +60,11 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                       <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
                         {customer.totalVisits} visits
                       </span>
+                      {customer.outstandingBalance > 0 && (
+                        <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+                          Due: ₹{customer.outstandingBalance}
+                        </span>
+                      )}
                     </div>
                   </div>
                   
@@ -105,15 +110,24 @@ export default function CustomersClient({ initialCustomers }: { initialCustomers
                                 </div>
                                 <p className="text-xs font-medium text-slate-500">{booking.service_name_snapshot} • {booking.stylist_name_snapshot}</p>
                               </div>
-                              <div className="text-right">
-                                <p className="font-bold text-teal-600 text-sm">₹{booking.price}</p>
-                                <p className="text-xs font-bold text-indigo-600">{booking.time_slot}</p>
+                              <div className="text-right flex flex-col items-end">
+                                <p className="font-bold text-slate-900 text-sm">₹{booking.payment?.totalPrice ?? booking.price}</p>
+                                {booking.payment && (
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border mt-0.5 ${
+                                    booking.payment.status === 'paid' ? 'text-teal-700 bg-teal-50 border-teal-200' :
+                                    booking.payment.status === 'partial' ? 'text-amber-700 bg-amber-50 border-amber-200' :
+                                    'text-rose-600 bg-rose-50 border-rose-200'
+                                  }`}>
+                                    {booking.payment.status === 'paid' ? '✓ Paid' : `Due: ₹${booking.payment.balance}`}
+                                  </span>
+                                )}
+                                <p className="text-xs font-medium text-indigo-600 mt-0.5">{booking.time_slot}</p>
                               </div>
                             </div>
-                            {booking.follow_up_note && (
+                            {(booking.payment?.cleanNote || booking.follow_up_note) && (
                               <div className="bg-orange-50/50 p-2.5 rounded-xl border border-orange-100 text-xs text-slate-700 mt-1 mx-1">
                                 <span className="font-bold text-orange-600 mr-1">Note:</span>
-                                {booking.follow_up_note}
+                                {booking.payment?.cleanNote || booking.follow_up_note}
                               </div>
                             )}
                           </div>

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { updateBooking } from '@/app/actions/bookings'
-import { X, Check, Calendar, Clock, User, DollarSign, FileText } from 'lucide-react'
+import { parseBookingPayment } from '@/lib/payments'
+import { X, Check } from 'lucide-react'
 
 interface EditBookingModalProps {
   booking: any
@@ -19,6 +20,8 @@ export default function EditBookingModal({
   isOpen,
   onClose
 }: EditBookingModalProps) {
+  const paymentInitial = parseBookingPayment(booking)
+
   const [selectedServices, setSelectedServices] = useState<any[]>(() => {
     if (booking.service_ids && booking.service_ids.length > 0) {
       return services.filter(s => booking.service_ids.includes(s.id))
@@ -31,11 +34,12 @@ export default function EditBookingModal({
   })
   
   const [price, setPrice] = useState<number>(booking.price || 0)
+  const [paidAmount, setPaidAmount] = useState<number>(paymentInitial.paidAmount)
   const [bookingDate, setBookingDate] = useState<string>(booking.booking_date || '')
   const [bookingTime, setBookingTime] = useState<string>(booking.time_slot === 'TBD' ? '' : booking.time_slot || '')
   const [stylistId, setStylistId] = useState<string>(booking.stylist_id || '')
   const [status, setStatus] = useState<string>(booking.status || 'confirmed')
-  const [notes, setNotes] = useState<string>(booking.follow_up_note || '')
+  const [notes, setNotes] = useState<string>(paymentInitial.cleanNote)
 
   const [serviceSearch, setServiceSearch] = useState('')
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
@@ -43,6 +47,8 @@ export default function EditBookingModal({
   const [error, setError] = useState<string | null>(null)
 
   if (!isOpen) return null
+
+  const balance = Math.max(0, price - paidAmount)
 
   const filteredServices = services.filter(s => 
     s.name.toLowerCase().includes(serviceSearch.toLowerCase())
@@ -70,6 +76,7 @@ export default function EditBookingModal({
       formData.set('bookingDate', bookingDate)
       formData.set('bookingTime', bookingTime)
       formData.set('price', price.toString())
+      formData.set('paidAmount', paidAmount.toString())
       formData.set('status', status)
       formData.set('notes', notes)
 
@@ -257,18 +264,41 @@ export default function EditBookingModal({
             </div>
           </div>
 
-          {/* Price */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Price (₹)</label>
-            <input
-              type="number"
-              required
-              min="0"
-              step="0.01"
-              value={price}
-              onChange={e => setPrice(parseFloat(e.target.value) || 0)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all font-bold text-slate-900"
-            />
+          {/* Pricing & Multi-Part Payments */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Price (₹)</label>
+              <input
+                type="number"
+                required
+                min="0"
+                step="0.01"
+                value={price}
+                onChange={e => setPrice(parseFloat(e.target.value) || 0)}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all font-bold text-slate-900"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid (₹)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={paidAmount}
+                onChange={e => setPaidAmount(parseFloat(e.target.value) || 0)}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all font-bold text-teal-700"
+              />
+            </div>
+          </div>
+
+          {/* Balance Preview */}
+          <div className={`p-3 rounded-xl border text-xs font-medium flex items-center justify-between ${
+            balance === 0 ? 'bg-teal-50 text-teal-700 border-teal-200' : 'bg-amber-50 text-amber-800 border-amber-200'
+          }`}>
+            <span>Payment Status:</span>
+            <span className="font-bold">
+              {balance === 0 ? '✓ Paid in Full' : `Due: ₹${balance}`}
+            </span>
           </div>
 
           {/* Notes */}

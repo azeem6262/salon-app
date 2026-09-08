@@ -10,6 +10,8 @@ export default function BookingFormClient({ services, stylists }: { services: an
   const router = useRouter()
   const [selectedServices, setSelectedServices] = useState<any[]>([])
   const [price, setPrice] = useState<number>(0)
+  const [paidAmount, setPaidAmount] = useState<number>(0)
+  const [hasCustomPaid, setHasCustomPaid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [phoneError, setPhoneError] = useState<string | null>(null)
   
@@ -23,6 +25,9 @@ export default function BookingFormClient({ services, stylists }: { services: an
       const next = isSelected ? prev.filter(x => x.id !== s.id) : [...prev, s]
       const newPrice = next.reduce((sum, curr) => sum + curr.default_price, 0)
       setPrice(newPrice)
+      if (!hasCustomPaid) {
+        setPaidAmount(newPrice)
+      }
       return next
     })
   }
@@ -176,9 +181,73 @@ export default function BookingFormClient({ services, stylists }: { services: an
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Price (₹)</label>
-        <input type="number" name="price" required min="0" step="0.01" value={price} onChange={e => setPrice(parseFloat(e.target.value))} className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-inner" />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Price (₹)</label>
+          <input 
+            type="number" 
+            name="price" 
+            required 
+            min="0" 
+            step="0.01" 
+            value={price} 
+            onChange={e => {
+              const val = parseFloat(e.target.value) || 0
+              setPrice(val)
+              if (!hasCustomPaid) setPaidAmount(val)
+            }} 
+            className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-inner font-bold text-slate-900" 
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount Paid Now (₹)</label>
+          <input 
+            type="number" 
+            name="paidAmount" 
+            min="0" 
+            step="0.01" 
+            value={paidAmount} 
+            onChange={e => {
+              setHasCustomPaid(true)
+              setPaidAmount(parseFloat(e.target.value) || 0)
+            }} 
+            className="rounded-xl border border-white/60 bg-white/60 px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all shadow-inner font-bold text-teal-700" 
+          />
+        </div>
+      </div>
+
+      {/* Quick Payment Options & Balance Pill */}
+      <div className="flex items-center justify-between -mt-2">
+        <div className="flex gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setHasCustomPaid(true)
+              setPaidAmount(price)
+            }}
+            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors border ${paidAmount === price ? 'bg-teal-50 text-teal-700 border-teal-200 shadow-sm' : 'bg-white/60 text-slate-600 border-white/60 hover:bg-white'}`}
+          >
+            Full (₹{price})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setHasCustomPaid(true)
+              setPaidAmount(0)
+            }}
+            className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors border ${paidAmount === 0 ? 'bg-rose-50 text-rose-700 border-rose-200 shadow-sm' : 'bg-white/60 text-slate-600 border-white/60 hover:bg-white'}`}
+          >
+            Pay Later (₹0)
+          </button>
+        </div>
+
+        <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
+          price - paidAmount <= 0
+            ? 'bg-teal-50 text-teal-700 border-teal-200'
+            : 'bg-amber-50 text-amber-700 border-amber-200'
+        }`}>
+          {price - paidAmount <= 0 ? '✓ Paid in Full' : `Due: ₹${Math.max(0, price - paidAmount)}`}
+        </span>
       </div>
 
       <div className="flex flex-col gap-2">

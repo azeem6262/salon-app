@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import CustomersClient from './CustomersClient'
+import { parseBookingPayment } from '@/lib/payments'
 
 export default async function CustomersPage() {
   const supabase = await createClient()
@@ -17,10 +18,15 @@ export default async function CustomersPage() {
     .eq('org_id', org?.id)
     .order('name', { ascending: true })
 
-  // Data processing: calculate last visit and total visits for each customer
+  // Data processing: calculate last visit, total visits, and outstanding balance for each customer
   const processedCustomers = customers?.map(customer => {
     // Sort bookings by date descending
-    const sortedBookings = customer.bookings.sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())
+    const sortedBookings = customer.bookings
+      .sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())
+      .map(b => ({
+        ...b,
+        payment: parseBookingPayment(b)
+      }))
     
     // Find last completed booking (actual visit)
     const lastBooking = sortedBookings.find(b => b.status === 'completed') || null
@@ -28,10 +34,19 @@ export default async function CustomersPage() {
     // Count only completed bookings as visits (excludes no_shows and pending)
     const totalVisits = customer.bookings.filter(b => b.status === 'completed').length
 
+    // Calculate total outstanding balance across active/completed appointments
+    const outstandingBalance = sortedBookings.reduce((sum, b) => {
+      if (b.status !== 'no_show') {
+        return sum + b.payment.balance
+      }
+      return sum
+    }, 0)
+
     return {
       ...customer,
       lastBooking,
       totalVisits,
+      outstandingBalance,
       sortedBookings
     }
   }) || []

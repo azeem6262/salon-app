@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { updateBookingStatus, deleteBooking } from '@/app/actions/bookings'
-import { CheckCircle2, XCircle, Phone, Pencil, Trash2 } from 'lucide-react'
+import { CheckCircle2, XCircle, Phone, Pencil, Trash2, CreditCard } from 'lucide-react'
 import EditBookingModal from './EditBookingModal'
+import RecordPaymentModal from './RecordPaymentModal'
+import { parseBookingPayment } from '@/lib/payments'
 
 export default function BookingCardClient({ 
   booking, 
@@ -18,6 +20,9 @@ export default function BookingCardClient({
 }) {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+
+  const payment = parseBookingPayment(booking)
 
   const handleStatusChange = async (newStatus: string) => {
     setIsUpdating(true)
@@ -46,7 +51,7 @@ export default function BookingCardClient({
 
   return (
     <>
-      <div className={`glass-card p-4 rounded-[1.5rem] flex flex-col gap-4 touch-scale ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className={`glass-card p-4 rounded-[1.5rem] flex flex-col gap-3.5 touch-scale ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
@@ -67,7 +72,7 @@ export default function BookingCardClient({
             <p className="text-sm font-medium text-slate-500">{booking.service_name_snapshot} • {booking.stylist_name_snapshot}</p>
           </div>
           
-          <div className="text-right flex flex-col items-end gap-2">
+          <div className="text-right flex flex-col items-end gap-1.5">
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setIsEditModalOpen(true)}
@@ -93,21 +98,50 @@ export default function BookingCardClient({
                 </a>
               )}
             </div>
-            <p className="font-bold text-teal-600">₹{booking.price}</p>
+            <p className="font-extrabold text-slate-900 text-lg">₹{payment.totalPrice}</p>
           </div>
         </div>
+
+        {/* Payment Status Pill / Installment Bar */}
+        <div className="flex items-center justify-between bg-slate-50/80 px-3 py-2 rounded-xl border border-slate-100 text-xs">
+          <div className="flex items-center gap-1.5">
+            {payment.status === 'paid' ? (
+              <span className="font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                ✓ Fully Paid (₹{payment.paidAmount})
+              </span>
+            ) : payment.status === 'partial' ? (
+              <span className="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                Partially Paid: ₹{payment.paidAmount} / ₹{payment.totalPrice} • Due: ₹{payment.balance}
+              </span>
+            ) : (
+              <span className="font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                Unpaid • Due: ₹{payment.balance}
+              </span>
+            )}
+          </div>
+
+          {payment.balance > 0 && (
+            <button
+              onClick={() => setIsPaymentModalOpen(true)}
+              className="flex items-center gap-1 text-xs font-bold text-teal-700 bg-teal-100/70 hover:bg-teal-200/80 px-2.5 py-1 rounded-lg transition-colors shadow-sm"
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              Pay Part
+            </button>
+          )}
+        </div>
         
-        {booking.follow_up_note && (
-          <div className="bg-orange-50/50 p-3 rounded-xl border border-orange-100">
-            <p className="text-sm font-medium text-slate-700">
-              <span className="font-bold text-orange-600 mr-2">Note:</span>
-              {booking.follow_up_note}
+        {payment.cleanNote && (
+          <div className="bg-orange-50/50 p-2.5 rounded-xl border border-orange-100">
+            <p className="text-xs font-medium text-slate-700">
+              <span className="font-bold text-orange-600 mr-1.5">Note:</span>
+              {payment.cleanNote}
             </p>
           </div>
         )}
 
         {!isPast && (
-          <div className="flex gap-2 pt-3 border-t border-white/60">
+          <div className="flex gap-2 pt-2 border-t border-white/60">
             <button 
               onClick={() => handleStatusChange('completed')}
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-teal-50 text-teal-600 hover:bg-teal-100 rounded-xl font-bold text-sm transition-colors"
@@ -132,6 +166,13 @@ export default function BookingCardClient({
         stylists={stylists}
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
+      />
+
+      <RecordPaymentModal
+        booking={booking}
+        paymentData={payment}
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
       />
     </>
   )

@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns'
 
+import { parseBookingPayment } from '@/lib/payments'
+
 async function getOrg() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -41,7 +43,7 @@ export async function getDashboardStats(range: string = 'day', customStart?: str
 
   const { data: bookings, error } = await supabase
     .from('bookings')
-    .select('id, price, status, customer_id')
+    .select('id, price, status, customer_id, follow_up_note')
     .eq('org_id', orgId)
     .gte('booking_date', startDate)
     .lte('booking_date', endDate)
@@ -61,7 +63,8 @@ export async function getDashboardStats(range: string = 'day', customStart?: str
 
   bookings?.forEach((b) => {
     if (b.status === 'completed') {
-      totalSales += Number(b.price)
+      const p = parseBookingPayment(b)
+      totalSales += p.paidAmount
     }
     if (b.status === 'no_show') {
       noShowCount++
