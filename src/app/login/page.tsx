@@ -20,11 +20,11 @@ export default function LoginPage() {
     <div className="flex min-h-[100dvh] flex-col items-center justify-center p-6 bg-mesh-light">
       <div className="w-full max-w-sm flex flex-col items-center gap-10 glass-card p-10 rounded-[2.5rem]">
         <div className="text-center flex flex-col items-center gap-3">
-          <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-fuchsia-500 rounded-2xl shadow-lg flex items-center justify-center mb-2">
-            <span className="text-white text-3xl font-bold leading-none -mt-1">S</span>
+          <div className="w-16 h-16 bg-white border border-slate-200/90 rounded-2xl shadow-md flex items-center justify-center mb-2 ring-1 ring-black/5">
+            <span className="text-slate-950 text-2xl font-black tracking-tight select-none">RL</span>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-br from-slate-900 to-slate-600 bg-clip-text text-transparent">Salonly</h1>
-          <p className="text-slate-500 font-medium">Salon Booking Manager</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Relore</h1>
+          <p className="text-slate-500 font-medium">Appointment & Practice Manager</p>
         </div>
         
         <button

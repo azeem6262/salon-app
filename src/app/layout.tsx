@@ -22,8 +22,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Salonly",
-  description: "Salon Booking Manager",
+  title: "Relore",
+  description: "Appointment & Practice Manager",
   manifest: "/manifest.json",
 };
 

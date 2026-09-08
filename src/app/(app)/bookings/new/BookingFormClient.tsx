@@ -130,7 +130,7 @@ export default function BookingFormClient({ services, stylists }: { services: an
                 className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm border-t border-slate-100 text-center py-3 text-sm font-bold text-indigo-600 cursor-pointer hover:bg-slate-100 transition-colors"
                 onClick={() => setIsServiceDropdownOpen(false)}
               >
-                Close List
+                Done
               </div>
             </div>
           )}

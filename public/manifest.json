@@ -1,7 +1,7 @@
 {
-  "name": "Salonly Manager",
-  "short_name": "Salonly",
-  "description": "Salon Booking Manager PWA",
+  "name": "Relore",
+  "short_name": "Relore",
+  "description": "Appointment & Practice Manager PWA",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

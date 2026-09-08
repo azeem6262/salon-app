@@ -60,11 +60,11 @@ export default function InstallPrompt() {
       <div className="bg-[#1c1c1e] text-white p-4 rounded-2xl shadow-2xl border border-white/10 flex flex-col gap-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-fuchsia-500 rounded-xl flex items-center justify-center text-white font-extrabold text-xl shadow-md">
-              S
+            <div className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-950 font-black text-base shadow-sm">
+              RL
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-base leading-tight">Get the Salonly app</span>
+              <span className="font-bold text-base leading-tight">Get the Relore app</span>
               <span className="text-[11px] text-slate-400 mt-0.5">Add to your home screen for the best experience</span>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function InstallPrompt() {
         <div className="bg-white/5 rounded-xl p-3 border border-white/5 text-sm text-slate-300 leading-relaxed mt-1 shadow-inner">
           {isInstallable ? (
             <div className="flex items-center justify-between">
-              <span className="text-xs">Install Salonly directly to your device.</span>
+              <span className="text-xs">Install Relore directly to your device.</span>
               <button 
                 onClick={handleInstallClick}
                 className="bg-white text-black px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 hover:bg-slate-200 transition-colors shadow-sm touch-scale"
@@ -90,7 +90,7 @@ export default function InstallPrompt() {
           ) : isIOS ? (
             <span className="text-xs">Tap the <Share className="w-4 h-4 inline-block mx-1 text-blue-400" /> Share icon at the bottom of Safari and select <strong>Add to Home Screen</strong>.</span>
           ) : (
-            <span className="text-xs">Open this site in Chrome or Edge and click the install icon <Download className="w-3.5 h-3.5 inline-block text-fuchsia-400 mx-0.5" /> in the address bar to add Salonly as an app.</span>
+            <span className="text-xs">Open this site in Chrome or Edge and click the install icon <Download className="w-3.5 h-3.5 inline-block text-fuchsia-400 mx-0.5" /> in the address bar to add Relore as an app.</span>
           )}
         </div>
       </div>
