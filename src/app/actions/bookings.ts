@@ -117,3 +117,73 @@ export async function updateBookingStatus(id: string, status: string) {
   revalidatePath('/', 'layout')
 }
 
+export async function deleteBooking(id: string) {
+  const { supabase, orgId } = await getOrg()
+
+  const { error } = await supabase
+    .from('bookings')
+    .delete()
+    .match({ id, org_id: orgId })
+
+  if (error) {
+    console.error("Booking Delete Error:", error)
+    throw new Error('Failed to delete booking: ' + error.message)
+  }
+
+  revalidatePath('/', 'layout')
+  return { success: true }
+}
+
+export async function updateBooking(id: string, formData: FormData) {
+  const { supabase, orgId } = await getOrg()
+
+  const serviceIds = formData.getAll('serviceIds') as string[]
+  const stylistId = formData.get('stylistId') as string
+  const bookingDate = formData.get('bookingDate') as string
+  const bookingTime = formData.get('bookingTime') as string
+  const price = parseFloat(formData.get('price') as string)
+  const status = formData.get('status') as string
+  const notes = formData.get('notes') as string
+
+  // Parallel fetch snapshots if needed
+  const [servicesResponse, stylistResponse] = await Promise.all([
+    serviceIds.length > 0 ? supabase.from('services').select('name').in('id', serviceIds) : Promise.resolve({ data: [] }),
+    stylistId ? supabase.from('stylists').select('name').eq('id', stylistId).maybeSingle() : Promise.resolve({ data: null })
+  ])
+
+  const serviceNameSnapshot = servicesResponse.data && servicesResponse.data.length > 0
+    ? servicesResponse.data.map((s: any) => s.name).join(' + ')
+    : undefined
+  const stylistNameSnapshot = stylistResponse.data?.name
+
+  const updatePayload: any = {
+    booking_date: bookingDate,
+    time_slot: bookingTime || 'TBD',
+    price: isNaN(price) ? 0 : price,
+    updated_at: new Date().toISOString()
+  }
+
+  if (status) updatePayload.status = status
+  if (serviceIds.length > 0) {
+    updatePayload.service_ids = serviceIds
+    updatePayload.service_id = serviceIds[0]
+  }
+  if (serviceNameSnapshot) updatePayload.service_name_snapshot = serviceNameSnapshot
+  if (stylistId) updatePayload.stylist_id = stylistId
+  if (stylistNameSnapshot) updatePayload.stylist_name_snapshot = stylistNameSnapshot
+  if (notes !== undefined) updatePayload.follow_up_note = notes || null
+
+  const { error } = await supabase
+    .from('bookings')
+    .update(updatePayload)
+    .match({ id, org_id: orgId })
+
+  if (error) {
+    console.error("Booking Update Error:", error)
+    throw new Error('Failed to update booking: ' + error.message)
+  }
+
+  revalidatePath('/', 'layout')
+  return { success: true }
+}
+

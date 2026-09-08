@@ -21,7 +21,8 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
     .from('bookings')
     .select(`
       id, booking_date, time_slot, price, status, follow_up_note,
-      service_name_snapshot, stylist_name_snapshot,
+      service_id, service_ids, service_name_snapshot,
+      stylist_id, stylist_name_snapshot,
       customers (name, phone)
     `)
     .eq('org_id', org?.id)
@@ -34,7 +35,11 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
     query = query.eq('status', 'no_show').order('booking_date', { ascending: false }).order('time_slot', { ascending: false })
   }
 
-  const { data: bookings } = await query
+  const [{ data: bookings }, { data: services }, { data: stylists }] = await Promise.all([
+    query,
+    supabase.from('services').select('id, name, default_price').eq('org_id', org?.id).order('name'),
+    supabase.from('stylists').select('id, name').eq('org_id', org?.id).order('name')
+  ])
 
   // Group bookings by date
   const groupedBookings = bookings?.reduce((acc: any, booking) => {
@@ -85,7 +90,13 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
             <div key={date} className="flex flex-col gap-3">
               <h3 className="font-bold text-slate-900 ml-2">{new Date(date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h3>
               {groupedBookings[date].map((booking: any) => (
-                <BookingCardClient key={booking.id} booking={booking} isPast={tab !== 'pending'} />
+                <BookingCardClient 
+                  key={booking.id} 
+                  booking={booking} 
+                  isPast={tab !== 'pending'} 
+                  services={services || []}
+                  stylists={stylists || []}
+                />
               ))}
             </div>
           ))
