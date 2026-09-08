@@ -22,11 +22,11 @@ export default async function CustomersPage() {
     // Sort bookings by date descending
     const sortedBookings = customer.bookings.sort((a, b) => new Date(b.booking_date).getTime() - new Date(a.booking_date).getTime())
     
-    // Find last completed or confirmed booking
-    const lastBooking = sortedBookings.length > 0 ? sortedBookings[0] : null
+    // Find last completed booking (actual visit)
+    const lastBooking = sortedBookings.find(b => b.status === 'completed') || null
     
-    // Count total bookings (excluding no_shows, or including all? Let's say all)
-    const totalVisits = customer.bookings.length
+    // Count only completed bookings as visits (excludes no_shows and pending)
+    const totalVisits = customer.bookings.filter(b => b.status === 'completed').length
 
     return {
       ...customer,
